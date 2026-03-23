@@ -1,0 +1,117 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathcal{F}}
+
+\title{Piazza Response: Week 8, Exercise 4\\
+       \large (for Jeremy Weissman)}
+\author{Neil Hwang}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{The Problem}
+
+Let $X_1, X_2, \ldots$ be i.i.d.\ with $\E[X_1] = 0$ and $\E|X_1| < \infty$.
+Set $S_n = X_1 + \cdots + X_n$ (with $S_0 = 0$) and
+$\F_n = \sigma(X_1, \ldots, X_n)$.
+Using Exercise~3 (``taking out what is known''), show that
+\[
+  \E[S_n \mid \F_{n-1}] = S_{n-1} \quad \text{a.s.\ for all } n \ge 1,
+\]
+and conclude that $(S_n, \F_n)_{n \ge 0}$ is a martingale.
+
+\section*{Hints and Key Ideas}
+
+There are exactly two things happening inside $\E[S_n \mid \F_{n-1}]$,
+each for a different reason.  The trick is to separate them cleanly.
+
+\paragraph{Step 1: Split the sum.}
+Write $S_n = S_{n-1} + X_n$.  By \emph{linearity} of conditional expectation:
+\[
+  \E[S_n \mid \F_{n-1}]
+  = \E[S_{n-1} \mid \F_{n-1}] + \E[X_n \mid \F_{n-1}].
+\]
+Now handle each term separately.
+
+\paragraph{Step 2: First term --- ``taking out what is known.''}
+The sum $S_{n-1} = X_1 + \cdots + X_{n-1}$ is determined entirely by
+$X_1, \ldots, X_{n-1}$, so it is $\F_{n-1}$-measurable.  Apply Exercise~3
+with $f = S_{n-1}$ and $g = 1$ (note $S_{n-1} \cdot 1 = S_{n-1} \in L^1$
+since $\E|X_1| < \infty$, so the hypotheses are satisfied):
+\[
+  \E[S_{n-1} \mid \F_{n-1}]
+  = \E[S_{n-1} \cdot 1 \mid \F_{n-1}]
+  = S_{n-1} \cdot \E[1 \mid \F_{n-1}]
+  = S_{n-1} \cdot 1
+  = S_{n-1}.
+\]
+Here we used $\E[1 \mid \F_{n-1}] = 1$, since the conditional expectation of
+any constant is that same constant (a constant is $\F_{n-1}$-measurable and
+integrates to itself over every $A \in \F_{n-1}$).
+
+\begin{remark}
+  Alternatively, one can cite directly that if $f$ is $\F$-measurable then
+  $\E[f \mid \F] = f$ a.s.\ (one of the standard properties of conditional
+  expectation).  Applying Exercise~3 with $g = 1$ is one way to derive this
+  from first principles, which is what the problem is asking for.
+\end{remark}
+
+\paragraph{Step 3: Second term --- independence.}
+The increment $X_n$ is \emph{independent} of $\F_{n-1} = \sigma(X_1,\ldots,X_{n-1})$:
+since the $X_i$ are i.i.d., $X_n$ is independent of any function of
+$X_1, \ldots, X_{n-1}$.  By the independence property of conditional expectation
+(if $W \perp \F$ then $\E[W \mid \F] = \E[W]$):
+\[
+  \E[X_n \mid \F_{n-1}] = \E[X_n] = \E[X_1] = 0.
+\]
+
+\paragraph{Combining.}
+\[
+  \E[S_n \mid \F_{n-1}]
+  = \underbrace{S_{n-1}}_{\text{Step 2}} + \underbrace{0}_{\text{Step 3}}
+  = S_{n-1} \quad \text{a.s.}
+\]
+
+\section*{Verifying the Three Martingale Conditions}
+
+Having established the martingale property, you still need to check all three
+conditions in the definition of a martingale
+$(S_n, \F_n)_{n \ge 0}$:
+
+\begin{enumerate}
+  \item \textit{Adapted}: $S_n = X_1 + \cdots + X_n$ is a Borel function of
+        $(X_1, \ldots, X_n)$, hence $\F_n$-measurable. $\checkmark$
+
+  \item \textit{Integrable}: By the triangle inequality and the i.i.d.\ assumption,
+        \[
+          \E|S_n| \le \sum_{k=1}^n \E|X_k| = n\,\E|X_1| < \infty.
+        \]
+        (Each $\E|X_k| = \E|X_1|$ because the $X_i$ are identically distributed.) $\checkmark$
+
+  \item \textit{Martingale property}: $\E[S_n \mid \F_{n-1}] = S_{n-1}$ a.s.,
+        shown above. $\checkmark$
+\end{enumerate}
+
+Therefore $(S_n, \F_n)_{n \ge 0}$ is a martingale. \hfill$\square$
+
+\begin{remark}
+  The structure here is the template for all random walk martingale arguments:
+  \begin{itemize}
+    \item The ``known past'' part ($S_{n-1}$) comes out of the expectation via
+          measurability (Exercise~3).
+    \item The ``new increment'' part ($X_n$) contributes nothing because it is
+          independent of the past and has mean zero.
+  \end{itemize}
+  Keep this two-part decomposition in mind --- it reappears throughout the
+  course whenever you need to verify the martingale property for a random walk.
+\end{remark}
+
+\end{document}
