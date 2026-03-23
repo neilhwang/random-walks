@@ -1,0 +1,618 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{mathtools}
+\geometry{margin=1in}
+\tcbuselibrary{breakable, skins}
+
+% ── Red box: course content (theorems, definitions, proofs, examples) ──────
+\tcbset{
+  redbox/.style={
+    enhanced, breakable,
+    colframe=red!65!black, colback=red!4!white,
+    fonttitle=\bfseries,
+    boxrule=0.8pt, arc=3pt,
+    title={#1}
+  }
+}
+
+% ── Blue box: explanations, intuition, extra examples, discussion ──────────
+\tcbset{
+  bluebox/.style={
+    enhanced, breakable,
+    colframe=blue!60!black, colback=blue!4!white,
+    fonttitle=\bfseries\color{blue!40!black},
+    boxrule=0.8pt, arc=3pt,
+    title={#1}
+  }
+}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\1}{\mathbf{1}}
+
+\title{Week 9 Lecture Notes --- Martingales II\\
+{\large Annotated with Explanations and Examples}}
+\author{CUNY Random Walks, Spring 2026}
+\date{March 24, 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% ================================================================
+\section{Martingale Transform (Discrete Stochastic Integral)}
+% ================================================================
+
+\begin{tcolorbox}[redbox={Definition: Predictable Sequence}]
+Let $(\Omega, \F, P)$ be a probability space and $(\F_n)_{n \ge 0}$ a filtration.
+A sequence $(H_n)_{n \ge 1}$ is said to be \textbf{predictable} if
+\[
+  H_n \in \F_{n-1} \quad \text{for all } n \ge 1.
+\]
+Informally: at time $n-1$ you already know how much you will bet in the next round.
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition: Predictability}]
+Think of $(H_n)$ as a \emph{gambling strategy}: $H_n$ is the amount bet in round $n$.
+\begin{itemize}
+  \item \textbf{Predictable} means the bet $H_n$ is decided \emph{before} the outcome
+        $X_n - X_{n-1}$ is revealed. This is the only realistic constraint on a gambler
+        -- you can look at all past results but you cannot see the future.
+  \item Examples of predictable sequences: any constant $H_n = c$; the strategy
+        $H_n = f(X_0, X_1, \ldots, X_{n-1})$ for any measurable $f$.
+  \item Non-example: $H_n = \1_{\{X_n > 0\}}$ is \emph{not} predictable because it
+        uses $X_n$, which is only known at time $n$, not $n-1$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Definition: Martingale Transform}]
+Let $(X_n)_{n \ge 0}$ be adapted to $(\F_n)$ and $(H_n)_{n \ge 1}$ predictable.
+The \textbf{martingale transform} (or \emph{discrete stochastic integral}) of $X$ by $H$ is
+\[
+  (H \cdot X)_n \coloneqq \sum_{m=1}^n H_m (X_m - X_{m-1}), \quad n \ge 0.
+\]
+Here $H_m(X_m - X_{m-1})$ is the gain from betting $H_m$ in round $m$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition: Martingale Transform as Cumulative Winnings}]
+$(H \cdot X)_n$ is the \textbf{total profit} of the strategy $(H_n)$ applied to the
+``game'' $(X_n)$ after $n$ rounds.
+\begin{itemize}
+  \item If $X_n$ is a fair game (martingale) and $H_n \ge 0$ is a bounded predictable
+        betting strategy, the total winnings $(H \cdot X)_n$ is still a fair game.
+        \textbf{You cannot beat a fair game with a clever (but bounded) strategy.}
+  \item This is the probabilistic foundation for the \emph{efficient market hypothesis}
+        in finance: no bounded trading strategy earns a profit in expectation on a
+        martingale price process.
+  \item The continuous-time analogue is the It\^o integral $\int_0^t H_s\,dX_s$.
+\end{itemize}
+\end{tcolorbox}
+
+% ────────────────────────────────────────────────────────────────
+\subsection{The Martingale Gambling System (Doubling Strategy)}
+% ────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[redbox={Example: Martingale Doubling System}]
+Let $\xi_m = X_m - X_{m-1}$ be i.i.d.\ with $P(\xi_m = 1) = p$ and
+$P(\xi_m = -1) = 1-p$.  The \emph{doubling strategy} is:
+\[
+  H_1 = 1, \qquad
+  H_n = \begin{cases} 2H_{n-1} & \text{if } \xi_{n-1} = -1 \\ 1 & \text{if } \xi_{n-1} = 1 \end{cases}.
+\]
+In other words, keep doubling the bet after each loss; reset to \$1 after any win.
+A sample path with $\xi = (-1,-1,-1,-1,+1,-1,\ldots)$ looks like:
+
+\medskip
+\begin{center}
+\begin{tabular}{c|cccccccccc}
+$n$                & 1  & 2  & 3  & 4   & 5   & 6 & 7 & 8 & 9  & \ldots\\
+\hline
+$\xi_n$            & $-1$ & $-1$ & $-1$ & $-1$ & $+1$ & $-1$ & $-1$ & $-1$ & \ldots\\
+$H_n$              & 1  & 2  & 4  & 8   & 16  & 1 & 2 & 4 & \ldots\\
+$(H\cdot X)_n$     & $-1$ & $-3$ & $-7$ & $-15$ & $+1$ & $0$ & $-2$ & $-6$ & \ldots\\
+\end{tabular}
+\end{center}
+\medskip
+After the first win at round 5: total gain $= -1-2-4-8+16 = +1$.  Then start fresh.
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Why the Doubling Strategy Doesn't Beat a Fair Game}]
+At first glance, the doubling strategy seems to guarantee a profit of $+\$1$ every time
+a win eventually occurs.  The catch is that \textbf{it requires unbounded wealth}.
+
+\medskip
+\textbf{The resolution:} The sequence $(H_n)$ is \emph{not bounded}.  In particular,
+$P(H_n = 2^{n-1}) = (1-p)^{n-1}$, which is positive for all $n$.  So with some
+(small but nonzero) probability, you need to bet $2^{n-1}$ dollars in round $n$.
+
+\medskip
+\textbf{Formal reason it fails:}  Theorem 4.2.8 below requires the strategy $(H_n)$ to be
+\emph{bounded}.  The doubling strategy violates this.  Since $(H_n)$ is unbounded,
+the theorem does not apply, and indeed the ``system'' does not work for a gambler with
+finite wealth:  if the gambler's budget is $B$ dollars, they will go bankrupt before
+completing the first winning run whenever $\xi_1 = \cdots = \xi_{\lfloor\log_2 B\rfloor} = -1$.
+
+\medskip
+\textbf{One needs unbounded wealth to successfully implement this strategy.}
+\end{tcolorbox}
+
+% ────────────────────────────────────────────────────────────────
+\subsection{Martingale Transform Theorem}
+% ────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[redbox={Theorem 4.2.8 (Martingale Transform)}]
+Let $(X_n)_{n \ge 0}$ be an $\F_n$-\textbf{supermartingale}.  If $(H_n)_{n \ge 1}$ is
+\textbf{predictable}, $H_n \ge 0$, and $(H_n)$ is \textbf{bounded} (say $|H_n| \le K$
+for all $n$), then $(H \cdot X)_n$ is also a supermartingale.
+
+\medskip\noindent
+The analogous results hold for submartingales (with $H_n \ge 0$) and for martingales
+(without the non-negativity requirement on $H_n$).
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Proof of Theorem 4.2.8}]
+\textbf{Integrability:}
+\[
+  \E|(H \cdot X)_n|
+  \le \sum_{m=1}^n \E|H_m(X_m - X_{m-1})|
+  \le K \sum_{m=1}^n \bigl(\E|X_m| + \E|X_{m-1}|\bigr) < \infty.
+\]
+
+\textbf{Supermartingale property:}  Using $H_{n+1} \in \F_n$ (predictability):
+\begin{align*}
+  \E\bigl[(H \cdot X)_{n+1} \mid \F_n\bigr]
+  &= (H \cdot X)_n + \E\bigl[H_{n+1}(X_{n+1} - X_n) \mid \F_n\bigr] \\
+  &= (H \cdot X)_n + H_{n+1}\,\E\bigl[X_{n+1} - X_n \mid \F_n\bigr] \\
+  &\le (H \cdot X)_n + H_{n+1} \cdot 0 \quad \text{(for a martingale $X_n$)} \\
+  &= (H \cdot X)_n.
+\end{align*}
+For a supermartingale: $\E[X_{n+1} - X_n|\F_n] \le 0$, and $H_{n+1} \ge 0$, so the
+inequality still holds.  \hfill$\square$
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition and Key Consequence}]
+Theorem 4.2.8 says: \textbf{you cannot turn an unfavorable (or fair) game into a
+favorable one using a bounded, non-negative betting strategy}.
+
+\medskip
+More precisely:
+\begin{itemize}
+  \item If $X_n$ is a \emph{martingale} (fair game), then $(H \cdot X)_n$ is also a
+        martingale for any bounded predictable $H_n$ (with no sign restriction).
+        You cannot systematically win on a fair game.
+  \item If $X_n$ is a \emph{supermartingale} (unfavorable game), betting more
+        ($H_n \ge 0$, bounded) only makes it worse (still a supermartingale).
+
+  \item The proof hinges on \textbf{two key properties used together}:
+        (1) $H_{n+1}$ is $\F_n$-measurable (predictable), so it can be ``taken out''
+        of the conditional expectation; (2) $E[X_{n+1}-X_n|\F_n] \le 0$ (supermartingale).
+\end{itemize}
+
+\medskip
+\textbf{Example:} Bounded strategy on SRW.
+Let $S_n$ be the symmetric SRW and $H_n = \1_{\{S_{n-1} > 0\}}$ (``bet only when ahead'').
+This is bounded ($H_n \in \{0,1\}$) and predictable. By Theorem 4.2.8, $(H \cdot S)_n$
+is a martingale.  Despite betting cleverly, you still can't generate a profit in
+expectation.
+\end{tcolorbox}
+
+% ────────────────────────────────────────────────────────────────
+\subsection{Stopped Martingales}
+% ────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[redbox={Theorem 4.2.9 (Stopping Preserves the Martingale Property)}]
+If $N$ is an $\F_n$-stopping time and $(X_n)_{n \ge 0}$ is an $\F_n$-supermartingale,
+then the \textbf{stopped process} $(X_{n \wedge N})_{n \ge 0}$ is also a supermartingale.
+The same holds for submartingales and martingales.
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Proof of Theorem 4.2.9}]
+Write the stopped process as a martingale transform:
+\[
+  X_{n \wedge N} - X_0
+  = \sum_{k=1}^n \1_{\{N \ge k\}}(X_k - X_{k-1})
+  = (H \cdot X)_n,
+\]
+where $H_k = \1_{\{N \ge k\}} = \1_{\{N > k-1\}}$.  Since $\{N > k-1\} = \{N \le k-1\}^c
+\in \F_{k-1}$ (as $N$ is a stopping time), $H_k$ is $\F_{k-1}$-measurable, hence
+\textbf{predictable}.  Moreover, $H_k \in \{0,1\}$ so $H_k \ge 0$ and $|H_k| \le 1$
+(\textbf{bounded}).
+
+By Theorem 4.2.8, $(H \cdot X)_n = X_{n \wedge N} - X_0$ is a supermartingale,
+hence $(X_{n \wedge N})_n$ is a supermartingale. \hfill$\square$
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition: Stopping is a Special Betting Strategy}]
+The key insight of the proof: stopping the process at $N$ is equivalent to using the
+betting strategy
+\[
+  H_k = \1_{\{N \ge k\}} =
+  \begin{cases} 1 & \text{if we have not yet stopped by time } k-1, \\ 0 & \text{if we stopped at or before time } k-1. \end{cases}
+\]
+This strategy is predictable (we know at time $k-1$ whether we have already stopped),
+non-negative, and bounded.  So Theorem 4.2.8 directly gives the result.
+
+\medskip
+\textbf{In short:} A stopped (super/sub)martingale is a (super/sub)martingale.
+This is used constantly: Optional Stopping reduces to this by applying the stopped
+result and letting $n \to \infty$.
+
+\medskip
+\textbf{Example:}  Let $S_n$ be SRW and $N = \tau_a = \inf\{n: S_n = a\}$.  Then
+$(S_{n \wedge N})$ is a martingale.  Combined with Corollary 4.2.12 applied to
+non-negative martingales, this gives a clean proof of the Optional Stopping Theorem.
+\end{tcolorbox}
+
+% ================================================================
+\section{Martingale Convergence Theorem}
+% ================================================================
+
+\begin{tcolorbox}[redbox={Theorem 4.2.11 (Martingale Convergence Theorem)}]
+If $(X_n)_{n \ge 0}$ is a submartingale with
+\[
+  \sup_{n \ge 0} \E[X_n^+] < \infty,
+\]
+then there exists an integrable random variable $X_\infty$ such that
+\[
+  X_n \xrightarrow{n \to \infty} X_\infty \quad \text{a.s.}
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Proof Sketch via Upcrossings (Doob's Upcrossing Inequality)}]
+The proof uses the following key lemma:
+
+\medskip
+\textbf{Doob's Upcrossing Lemma.}  Let $U_n(a,b)$ = number of times $(X_0, \ldots, X_n)$
+completes an \emph{upcrossing} of $[a,b]$ (i.e., goes from below $a$ to above $b$).
+For a submartingale:
+\[
+  (b-a)\,\E[U_n(a,b)] \le \E[(X_n - a)^+] - \E[(X_0 - a)^+].
+\]
+
+\medskip
+\textbf{Why this implies convergence:}
+\begin{enumerate}
+  \item Since $\sup_n \E[X_n^+] < \infty$, we have $\sup_n \E[(X_n - a)^+] \le \sup_n \E[X_n^+] + |a| < \infty$.
+  \item Therefore $E[U_\infty(a,b)] = \lim_n \E[U_n(a,b)] \le C/(b-a) < \infty$,
+        so $U_\infty(a,b) < \infty$ a.s.\ (the process completes only finitely many
+        upcrossings of $[a,b]$ a.s.).
+  \item If $\liminf X_n < a < b < \limsup X_n$ for some rational $a < b$, the process
+        would complete infinitely many upcrossings of $[a,b]$ — a contradiction.
+  \item Taking the union over all rational pairs $a < b$: $P(\liminf X_n < \limsup X_n) = 0$.
+        Hence $\lim X_n$ exists a.s.\ (possibly $\pm\infty$).
+  \item The bound $\sup_n \E[X_n^+] < \infty$ and Fatou's lemma then ensure
+        $\E[X_\infty^+] \le \sup_n \E[X_n^+] < \infty$, so $X_\infty > -\infty$ a.s.
+\end{enumerate}
+
+\medskip
+\textbf{Intuition:}  If the process were to oscillate (fail to converge), it would have
+to cross each interval $[a,b]$ infinitely often.  The upcrossing inequality says that
+the expected number of crossings is controlled by the ``size'' of the process (measured
+by $\E[X_n^+]$).  A bounded-in-expectation process cannot cross intervals infinitely
+many times.
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Corollary 4.2.12 (Non-negative Supermartingale Converges)}]
+If $(X_n)_{n \ge 0}$ is a non-negative supermartingale, then
+\[
+  X_n \xrightarrow{n \to \infty} X_\infty \quad \text{a.s.},
+\]
+and $\E[X_\infty] \le \E[X_0]$.
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Proof of Corollary 4.2.12}]
+Since $X_n \ge 0$, $(-X_n)$ is a submartingale with $(-X_n)^+ = 0$, so
+$\sup_n \E[(-X_n)^+] = 0 < \infty$.  By Theorem 4.2.11, $-X_n \to -X_\infty$ a.s.,
+i.e., $X_n \to X_\infty$ a.s.
+
+For the inequality: by Fatou's lemma and the supermartingale property
+($\E X_n \le \E X_0$ for all $n$):
+\[
+  \E X_\infty = \E\!\Bigl[\liminf_{n\to\infty} X_n\Bigr]
+  \le \liminf_{n\to\infty} \E X_n
+  \le \E X_0. \qquad\square
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition: Why the Inequality $\E X_\infty \le \E X_0$ Can Be Strict}]
+A non-negative supermartingale ``leaks mass to $0$'': the process can converge to $0$
+while still having $\E X_0 > 0$.  The difference $\E X_0 - \E X_\infty \ge 0$ is the
+``mass that escaped to $+\infty$'' in the sense of the dominated convergence failure.
+
+\medskip
+\textbf{When does equality hold?} $\E X_\infty = \E X_0$ iff $(X_n)$ is uniformly
+integrable.  For a \emph{martingale}, $(X_n)$ is UI iff it converges in $L^1$.
+\end{tcolorbox}
+
+% ────────────────────────────────────────────────────────────────
+\subsection{Example: SRW Stopped at Zero}
+% ────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[redbox={Example: Convergence Without $L^1$ Convergence}]
+Let $S_n = 1 + \xi_1 + \cdots + \xi_n$ where $\xi_i$ are i.i.d.\ $\pm 1$ with equal
+probability.  Let $N = \inf\{n \ge 0: S_n = 0\}$ and define $X_n = S_{n \wedge N}$.
+
+By Theorem 4.2.9, $(X_n)$ is a non-negative martingale.  By Corollary 4.2.12,
+$X_n \to X_\infty$ a.s.
+
+Since SRW is recurrent, $N < \infty$ a.s.  After time $N$, the walk is stuck at $0$,
+so $X_\infty = 0$ a.s.
+
+However, $(X_n)$ is a martingale, so $\E X_n = \E X_0 = 1$ for all $n$.  Thus
+$\E X_\infty = 0 \ne 1 = \E X_0$: \textbf{there is no $L^1$ convergence}.
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Discussion: Why $L^1$ Convergence Fails}]
+The failure of $L^1$ convergence is explained by \textbf{lack of uniform integrability}.
+
+\medskip
+Intuitively: the walk $X_n = S_{n\wedge N}$ stays near $1$ (its starting value) for a
+long time before suddenly dropping to $0$ at time $N$.  When $n$ is large, the event
+$\{X_n \approx 1\}$ has probability $P(N > n) \to 0$, but conditioned on $\{N > n\}$,
+the walk is still at a large positive value.  This ``escaping mass'' prevents $L^1$
+convergence.
+
+\medskip
+\textbf{Formal check:}
+$\E[X_n \1_{\{X_n > K\}}] = \E[S_{n \wedge N} \1_{\{S_{n\wedge N} > K\}}]
+\ge K \cdot P(N > n) \cdot P(S_n > K \mid N > n)$,
+which does not go to $0$ uniformly in $n$.  This is the UI condition failure.
+
+\medskip
+\textbf{Key lesson:} A.s.\ convergence does \emph{not} imply $L^1$ convergence.
+The martingale convergence theorem gives a.s.\ convergence for free; $L^1$ convergence
+requires the additional condition of uniform integrability.
+\end{tcolorbox}
+
+% ────────────────────────────────────────────────────────────────
+\subsection{Example: Pólya's Urn}
+% ────────────────────────────────────────────────────────────────
+
+\begin{tcolorbox}[redbox={Example: Pólya's Urn Scheme}]
+Start with $g$ green and $r$ red balls.  At each step: draw a ball at random, return it
+and add $c$ more balls of the \emph{same} color.
+
+Let $G_n$ = number of green balls after $n$ draws, $R_n = r + g + cn - G_n$ the
+number of red balls, and $X_n = G_n/(G_n + R_n)$ the proportion of green balls.
+
+\medskip
+\textbf{Claim:} $(X_n)$ is a martingale.  Proof:
+\begin{align*}
+  \E[X_{n+1} \mid \F_n]
+  &= \frac{G_n}{G_n+R_n} \cdot \frac{G_n+c}{G_n+R_n+c}
+   + \frac{R_n}{G_n+R_n} \cdot \frac{G_n}{G_n+R_n+c} \\
+  &= \frac{G_n(G_n+c) + R_n G_n}{(G_n+R_n)(G_n+R_n+c)}
+   = \frac{G_n(G_n+R_n+c)}{(G_n+R_n)(G_n+R_n+c)}
+   = \frac{G_n}{G_n+R_n} = X_n.
+\end{align*}
+Since $0 \le X_n \le 1$, $(X_n)$ is bounded, hence uniformly integrable.
+By Corollary 4.2.12, $X_n \to X_\infty$ a.s.\ and $\E[X_\infty] = \E[X_0] = g/(g+r)$.
+
+\medskip
+\textbf{Special case $r = g = c = 1$:} The limit $X_\infty \sim \mathrm{Uniform}(0,1)$.
+
+\medskip
+\textit{Proof:} By the Pólya urn formula, for $m \in \{0, 1, \ldots, n\}$:
+\[
+  P(G_n = m+1) = \binom{n}{m} \frac{m!\,(n-m)!}{(n+1)!} = \frac{1}{n+1},
+\]
+so $G_n/(n+2)$ is uniform on $\{1/(n+2), 2/(n+2), \ldots, (n+1)/(n+2)\}$.
+As $n \to \infty$, this discrete uniform converges weakly to $\mathrm{Uniform}(0,1)$,
+hence $X_\infty \sim \mathrm{Uniform}(0,1)$.
+
+\medskip
+\textbf{General case:} $X_\infty \sim \mathrm{Beta}(g/c,\, r/c)$ with density
+\[
+  f(x) = \frac{x^{g/c-1}(1-x)^{r/c-1}}{B(g/c,\,r/c)}, \quad 0 < x < 1.
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Detailed Explanation of the Uniform Case}]
+\textbf{Why does the urn starting with 1 green + 1 red + replace by 1 give Uniform(0,1)?}
+
+The key observation is \textbf{exchangeability}: the joint distribution of the color
+sequence is symmetric under permutations (adding a ball of the drawn color preserves
+exchangeability by the de Finetti theorem).
+
+\medskip
+More concretely, with $r = g = c = 1$:  After $n$ draws with exactly $m$ green draws
+(and $n-m$ red draws), the number of green balls is $m + 1$.
+\[
+  P(\text{exactly } m \text{ green draws in first } n) = \binom{n}{m} \cdot \frac{m!\,(n-m)!}{(n+1)!} = \frac{1}{n+1}.
+\]
+This is because each of the $n+1$ possible values of $m \in \{0,1,\ldots,n\}$ is
+equally likely.  (The $\binom{n}{m}$ arrangements, each with probability
+$\frac{1 \cdot 2 \cdots m \cdot 1 \cdot 2 \cdots (n-m)}{2 \cdot 3 \cdots (n+1)}$,
+all give the same total $\frac{m!(n-m)!}{(n+1)!}$.)
+
+\medskip
+\textbf{Polya's Urn as a Bayesian model:} There is a beautiful interpretation.
+Imagine $X_\infty \sim \text{Uniform}(0,1)$ is the unknown ``true'' proportion.
+Given $X_\infty = p$, the draws are i.i.d.\ Bernoulli($p$).  Then the posterior
+distribution of $p$ after observing $m$ greens and $n-m$ reds is
+$\text{Beta}(m+1, n-m+1)$, whose mean is $(m+1)/(n+2) = X_n$.
+The Pólya urn is exactly the process of sequentially updating a Bayesian estimate!
+
+\medskip
+\textbf{Interpretation of the Beta distribution (general case):}
+$X_\infty \sim \text{Beta}(g/c, r/c)$ means the long-run proportion of green balls
+has the Beta distribution with parameters determined by the initial ratio $g:r$ and
+the reinforcement strength $c$.  Large $c$ means more reinforcement, leading to more
+concentrated distributions (closer to $0$ or $1$).
+\end{tcolorbox}
+
+% ================================================================
+\section{Convergence or Oscillation}
+% ================================================================
+
+\begin{tcolorbox}[redbox={Theorem 4.3.1 (Convergence or Oscillation)}]
+Let $(X_n)_{n \ge 0}$ be a martingale with \textbf{bounded increments}:
+$|X_n - X_{n-1}| \le M$ for all $n \ge 1$ and some constant $M$.  Define
+\begin{align*}
+  C &= \Bigl\{\lim_{n \to \infty} X_n \text{ exists and is finite}\Bigr\}, \\
+  D &= \Bigl\{\limsup_{n\to\infty} X_n = +\infty \text{ and } \liminf_{n\to\infty} X_n = -\infty\Bigr\}.
+\end{align*}
+Then $P(C \cup D) = 1$.
+
+In other words, a bounded-increment martingale either converges to a finite limit a.s.,
+or it oscillates between $+\infty$ and $-\infty$ a.s.\ --- and there is no third option.
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Proof of Theorem 4.3.1}]
+Without loss of generality set $X_0 = 0$ (replace $X_n$ by $X_n - X_0$).
+Fix $K \in (0, \infty)$ and let $N = N_K = \inf\{n \ge 0: X_n > K\}$.
+
+The stopped process $(X_{n \wedge N})$ is a martingale (Theorem 4.2.9) with
+$X_{n \wedge N} \ge -(K + M)$ (since $X_n < K$ before time $N$ and jumps are at
+most $M$).  Thus $X_{n \wedge N} + K + M \ge 0$ is a non-negative martingale.
+
+By Corollary 4.2.12, $X_{n \wedge N} + K + M \to$ a finite limit a.s., so
+$\lim_{n \to \infty} X_{n \wedge N}$ exists a.s.  On the event $\{N = \infty\}$
+(i.e., $\limsup X_n \le K$), $X_{n \wedge N} = X_n$ for all $n$, so $\lim X_n$ exists.
+
+Letting $K \to \infty$: $\lim X_n$ exists on $\{\limsup X_n < \infty\}$.
+Repeating the argument with $-X_n$: $\lim (-X_n)$ exists on $\{\liminf X_n > -\infty\}$.
+
+Hence $\lim X_n$ exists (finitely) on $C = \{\limsup X_n < \infty\} \cap \{\liminf X_n > -\infty\}$,
+and these cover all cases except $D$.  So $P(C \cup D) = 1$. \hfill$\square$
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition and Examples}]
+\textbf{What the theorem says:} A martingale with bounded jumps cannot ``partially
+oscillate'' --- it cannot have $\limsup = +\infty$ while $\liminf$ remains bounded
+(or vice versa).  Either it settles down ($C$) or it swings wildly between $\pm\infty$
+($D$).
+
+\medskip
+\textbf{Example 1: Symmetric SRW} $S_n = \xi_1 + \cdots + \xi_n$, $P(\xi_i = \pm 1) = 1/2$.
+By the Four Possibilities Theorem (Week 4), $\limsup S_n = +\infty$ and $\liminf S_n = -\infty$
+a.s., so $P(D) = 1$ for SRW.
+
+\medskip
+\textbf{Example 2: Doob's martingale} $M_n = \E[Z \mid \F_n]$ for some $Z \in L^1$.
+This converges a.s.\ (by L\'evy's upward theorem), so $P(C) = 1$.
+
+\medskip
+\textbf{Significance:} The theorem rules out the ``third possibility''
+$\limsup = +\infty$, $\liminf > -\infty$ (or symmetrically).  Intuitively, if a
+martingale with bounded jumps goes arbitrarily high, it must also go arbitrarily low
+(it has no net drift, so every excursion to $+\infty$ must be balanced by one to $-\infty$).
+\end{tcolorbox}
+
+% ================================================================
+\section{Doob's Decomposition}
+% ================================================================
+
+\begin{tcolorbox}[redbox={Theorem: Doob's Decomposition}]
+Any submartingale $(X_n)_{n \ge 0}$ (relative to filtration $(\F_n)_{n \ge 0}$)
+can be written \textbf{uniquely} as
+\[
+  X_n = M_n + A_n,
+\]
+where:
+\begin{itemize}
+  \item $(M_n)_{n \ge 0}$ is a \textbf{martingale} (relative to $(\F_n)$),
+  \item $(A_n)_{n \ge 0}$ is a \textbf{non-decreasing predictable} sequence with $A_0 = 0$.
+\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[redbox={Proof of Doob's Decomposition}]
+\textbf{Existence.}  Define $A_0 = 0$ and for $n \ge 1$:
+\[
+  A_n = \sum_{m=1}^n \E[X_m - X_{m-1} \mid \F_{m-1}], \qquad
+  M_n = X_n - A_n.
+\]
+
+\textit{$(A_n)$ is predictable:} $A_n - A_{n-1} = \E[X_n - X_{n-1} \mid \F_{n-1}]$
+is $\F_{n-1}$-measurable.
+
+\textit{$(A_n)$ is non-decreasing:} Since $(X_n)$ is a submartingale,
+$\E[X_n - X_{n-1} \mid \F_{n-1}] \ge 0$, so $A_n - A_{n-1} \ge 0$.
+
+\textit{$(M_n)$ is a martingale:}
+\begin{align*}
+  \E[M_{n+1} \mid \F_n]
+  &= \E[X_{n+1} - A_{n+1} \mid \F_n] \\
+  &= \E[X_{n+1} \mid \F_n] - A_n - \E[X_{n+1} - X_n \mid \F_n] \\
+  &= X_n - A_n = M_n.
+\end{align*}
+
+\medskip\noindent
+\textbf{Uniqueness.}  Suppose $X_n = M_n + A_n = \widetilde{M}_n + \widetilde{A}_n$.
+Then $D_n \coloneqq A_n - \widetilde{A}_n = \widetilde{M}_n - M_n$ is both predictable
+and a martingale difference.  Since $D_n \in \F_{n-1}$ (predictable):
+\[
+  D_n = \E[D_n \mid \F_{n-1}] = D_{n-1}
+  \quad \text{(martingale property applied to $D$)}.
+\]
+So $D_n = D_0 = A_0 - \widetilde{A}_0 = 0$ for all $n$.  Hence $A_n = \widetilde{A}_n$
+and $M_n = \widetilde{M}_n$. \hfill$\square$
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Intuition: Separating the ``Trend'' from the ``Noise''}]
+Doob's decomposition splits a submartingale into two parts:
+\begin{itemize}
+  \item $M_n$ = the \textbf{martingale part} (``noise'', unpredictable fluctuations)
+  \item $A_n$ = the \textbf{compensator} or \textbf{drift part} (``trend'', the
+        predictable upward drift that makes the process a submartingale)
+\end{itemize}
+
+\medskip
+\textbf{Analogy with calculus:} In the continuous-time analogue (It\^o--Doob),
+a semimartingale $X_t$ decomposes as $X_t = M_t + A_t$ where $M_t$ is a local
+martingale and $A_t$ is a bounded-variation process.  Doob's decomposition is the
+discrete predecessor of this result.
+
+\medskip
+\textbf{Example 1: Submartingale $X_n = S_n^2$ (SRW squared).}
+$S_n^2$ is a submartingale since $\E[S_{n+1}^2 \mid \F_n] = S_n^2 + 1 \ge S_n^2$.
+Doob decomposition: $A_n = n$ (the deterministic drift), $M_n = S_n^2 - n$ (which is
+a martingale -- we verified this in the course).
+
+\medskip
+\textbf{Example 2: Compensator as quadratic variation.}
+For a square-integrable martingale $(M_n)$, the process $M_n^2$ is a submartingale,
+and its Doob decomposition gives $M_n^2 = \widetilde{M}_n + \langle M \rangle_n$
+where $\langle M \rangle_n = \sum_{k=1}^n \E[(M_k - M_{k-1})^2 \mid \F_{k-1}]$
+is the \textbf{predictable quadratic variation} (or angle-bracket process).
+This is the discrete analogue of the It\^o isometry.
+
+\medskip
+\textbf{Example 3: Connection to Optional Stopping.}
+If $\tau$ is a stopping time and $X_n = M_n + A_n$ is the Doob decomposition, then
+$\E[X_\tau] = \E[M_\tau] + \E[A_\tau]$.  Under UI conditions, $\E[M_\tau] = \E[M_0]$,
+so $\E[X_\tau] - \E[X_0] = \E[A_\tau] \ge 0$ (the expected gain is the expected
+accumulated drift).
+
+\medskip
+\textbf{Uniqueness is important:}  It means every submartingale has exactly one way
+to be decomposed.  There is a unique ``trend'' $A_n$ hidden in any submartingale.
+\end{tcolorbox}
+
+\begin{tcolorbox}[bluebox={Summary of Week 9 Key Results}]
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{5cm} p{8.5cm}}
+\hline
+\textbf{Result} & \textbf{Key Message} \\
+\hline
+Predictable sequence & Bet is decided \emph{before} the outcome is revealed. \\
+Martingale transform & You cannot beat a fair game with a bounded strategy. \\
+Stopped martingale (4.2.9) & Stopping at a stopping time preserves the (super/sub)martingale property. \\
+Martingale convergence (4.2.11) & Bounded-in-expectation submartingales converge a.s. \\
+Non-neg. supermartingale (4.2.12) & Converges a.s.; limit may have smaller expectation. \\
+SRW stopped at 0 & A.s.\ convergence does not imply $L^1$ convergence. \\
+P\'{o}lya's urn & Green ball proportion converges; limit is Beta-distributed. \\
+Convergence or oscillation (4.3.1) & Bounded-increment martingale either converges or swings $\pm\infty$. \\
+Doob's decomposition & Submartingale $=$ martingale $+$ predictable non-decreasing part. \\
+\hline
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
+\end{document}
