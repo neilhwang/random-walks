@@ -1,0 +1,128 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{exercise}{Exercise}
+\theoremstyle{remark}
+\newtheorem*{solution}{Solution}
+\newtheorem*{remark}{Remark}
+
+\title{Random Walks --- Week 7 Piazza Exercises}
+\author{CUNY, Spring 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Week 7: Conditional Expectation}
+
+Let $(X, Y)$ be uniformly distributed on the unit disk
+$D = \{(x,y) \in \mathbb{R}^2 : x^2 + y^2 \le 1\}$.
+The joint density is $f_{X,Y}(x,y) = 1/\pi$ on $D$.
+
+\medskip\noindent
+The marginal density of $Y$ is
+\[
+  f_Y(y) = \int_{-\sqrt{1-y^2}}^{\sqrt{1-y^2}} \frac{1}{\pi}\,dx
+  = \frac{2\sqrt{1-y^2}}{\pi}, \qquad y \in [-1,1].
+\]
+Given $Y = y$, the conditional density of $X$ is
+\[
+  f_{X \mid Y}(x \mid y) = \frac{f_{X,Y}(x,y)}{f_Y(y)}
+  = \frac{1/\pi}{2\sqrt{1-y^2}/\pi}
+  = \frac{1}{2\sqrt{1-y^2}},
+  \qquad x \in \bigl[-\sqrt{1-y^2},\,\sqrt{1-y^2}\bigr],
+\]
+so $X \mid Y = y$ is uniform on $[-\sqrt{1-y^2},\,\sqrt{1-y^2}]$.
+
+% ----------------------------------------------------------------
+\begin{exercise}[Conditional probability $P(X \le Y \mid Y)$]
+Compute $P(X \le Y \mid Y)$ as an explicit function of $Y$.
+\end{exercise}
+
+\begin{solution}
+Given $Y = y$ with $y \in [-1,1]$, $X$ is uniform on $[-\sqrt{1-y^2},\,\sqrt{1-y^2}]$.
+Let $a(y) = -\sqrt{1-y^2}$ and $b(y) = \sqrt{1-y^2}$.
+
+We compute $P(X \le y \mid Y = y)$ by integrating the uniform density:
+\[
+  P(X \le y \mid Y = y)
+  = \frac{(y \wedge b(y)) - a(y)}{b(y) - a(y)}
+  = \frac{(y \wedge \sqrt{1-y^2}) + \sqrt{1-y^2}}{2\sqrt{1-y^2}}.
+\]
+We consider three cases depending on the sign of $y - \sqrt{1-y^2}$:
+
+\textbf{Case 1:} $y \in (-\sqrt{2}/2,\, \sqrt{2}/2)$ (so $|y| < \sqrt{1-y^2}$, i.e.\
+$y^2 < 1/2$).  Then $y \in (a(y), b(y))$, so
+\[
+  P(X \le y \mid Y = y) = \frac{y + \sqrt{1-y^2}}{2\sqrt{1-y^2}}.
+\]
+
+\textbf{Case 2:} $y \in [\sqrt{2}/2,\, 1]$ (so $y \ge \sqrt{1-y^2}$).
+Then $y \ge b(y)$, meaning $X \le b(y) \le y$ always, so
+\[
+  P(X \le y \mid Y = y) = 1.
+\]
+
+\textbf{Case 3:} $y \in [-1,\, -\sqrt{2}/2]$ (so $y \le -\sqrt{1-y^2} = a(y)$).
+Then $y \le a(y)$, meaning $X \ge a(y) \ge y$ always, so
+\[
+  P(X \le y \mid Y = y) = 0.
+\]
+
+\medskip\noindent
+Combining, as a function of $Y$:
+\[
+  \boxed{P(X \le Y \mid Y) = \begin{cases}
+    0 & \text{if } Y \in [-1,\,-\sqrt{2}/2], \\[4pt]
+    \dfrac{Y + \sqrt{1-Y^2}}{2\sqrt{1-Y^2}} & \text{if } Y \in (-\sqrt{2}/2,\,\sqrt{2}/2), \\[8pt]
+    1 & \text{if } Y \in [\sqrt{2}/2,\,1].
+  \end{cases}}
+\]
+Note: the boundary points have $P(Y = \pm\sqrt{2}/2) = 0$ so their assignment is
+irrelevant (the conditional expectation is defined only a.s.).
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Conditional expectation $E(X \mid Y)$]
+Find $E(X \mid Y)$.
+\end{exercise}
+
+\begin{solution}
+Given $Y = y$, $X$ is uniform on $[-\sqrt{1-y^2},\,\sqrt{1-y^2}]$, a symmetric interval
+about $0$.  Therefore
+\[
+  E(X \mid Y = y) = \frac{-\sqrt{1-y^2} + \sqrt{1-y^2}}{2} = 0.
+\]
+Hence $E(X \mid Y) = 0$ a.s.
+
+\medskip\noindent\textit{Verification:} We can check directly that $\int_A E(X \mid Y)\,dP = \int_A X\,dP$ for $A \in \sigma(Y)$.  Since $E(X \mid Y) = 0$ and $X$ is symmetric about $0$ given any $y$, both integrals equal $0$.
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Conditional second moment $E(X^2 \mid Y)$]
+Find $E(X^2 \mid Y)$.
+\end{exercise}
+
+\begin{solution}
+Given $Y = y$, $X \sim \mathrm{Unif}[-\sqrt{1-y^2},\,\sqrt{1-y^2}]$.
+For a uniform distribution on $[-c, c]$, the second moment is
+\[
+  E[X^2 \mid Y = y]
+  = \int_{-c}^{c} x^2 \cdot \frac{1}{2c}\,dx
+  = \frac{1}{2c} \cdot \frac{2c^3}{3}
+  = \frac{c^2}{3},
+\]
+with $c = \sqrt{1 - y^2}$.  Therefore
+\[
+  \boxed{E(X^2 \mid Y) = \frac{1 - Y^2}{3}.}
+\]
+\textit{Verification:} $E\bigl[E(X^2 \mid Y)\bigr] = E\bigl[\frac{1-Y^2}{3}\bigr]
+= \frac{1}{3}\bigl(1 - E[Y^2]\bigr)$.  Since $E[Y^2] = \frac{1}{\pi}\int_D y^2\,dx\,dy
+= \frac{1}{4}$ (for the uniform distribution on the unit disk), we get
+$E[X^2 \mid Y] = \frac{1}{3}(1 - \frac{1}{4}) = \frac{1}{4}$.
+Directly, $E[X^2] = \frac{1}{4}$ by symmetry, which confirms the calculation.
+\end{solution}
+
+\end{document}

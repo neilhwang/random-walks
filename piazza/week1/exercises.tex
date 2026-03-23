@@ -1,0 +1,55 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{exercise}{Exercise}
+\newtheorem{solution}{Solution}
+
+\title{Random Walks --- Week 1 Piazza Exercises}
+\author{CUNY, Spring 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Week 1: Foundations of Simple Random Walk}
+
+Recall the finite-time setup: $\Omega_N = \{-1,+1\}^N$ with the uniform probability measure
+\[
+  P_N(A) = \frac{|A|}{2^N}, \qquad A \subseteq \Omega_N.
+\]
+Define $X_k(\omega) = \omega_k$ for $\omega = (\omega_1, \ldots, \omega_N) \in \Omega_N$ and $k = 1, \ldots, N$.
+
+\begin{exercise}
+Show that $X_1, X_2, \ldots, X_N$ are independent and identically distributed with
+\[
+  P_N(X_i = +1) = P_N(X_i = -1) = \tfrac{1}{2}.
+\]
+\end{exercise}
+
+\begin{proof}
+\textbf{Identical distribution.} Fix any $k \in \{1,\ldots,N\}$. The set
+\[
+  \{X_k = +1\} = \{\omega \in \Omega_N : \omega_k = +1\}
+\]
+has exactly $2^{N-1}$ elements (we freely choose each of the remaining $N-1$ coordinates). Therefore
+\[
+  P_N(X_k = +1) = \frac{2^{N-1}}{2^N} = \frac{1}{2},
+\]
+and by an identical argument $P_N(X_k = -1) = \tfrac{1}{2}$. Since this holds for every $k$, the $X_k$ are identically distributed.
+
+\textbf{Independence.} Let $k_1 < k_2 < \cdots < k_n$ be distinct indices in $\{1,\ldots,N\}$, and let $x_1, \ldots, x_n \in \{-1,+1\}$. The event
+\[
+  \{X_{k_1} = x_1\} \cap \cdots \cap \{X_{k_n} = x_n\}
+\]
+fixes $n$ specific coordinates of $\omega$ and leaves the remaining $N-n$ coordinates free, so it contains exactly $2^{N-n}$ elements. Hence
+\[
+  P_N\!\bigl(X_{k_1}=x_1,\,\ldots,\,X_{k_n}=x_n\bigr)
+  = \frac{2^{N-n}}{2^N} = \frac{1}{2^n}
+  = \prod_{i=1}^n P_N(X_{k_i} = x_i).
+\]
+Since this factorization holds for all choices of indices and values, $X_1, \ldots, X_N$ are mutually independent.
+\end{proof}
+
+\end{document}

@@ -1,0 +1,207 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{exercise}{Exercise}
+\theoremstyle{remark}
+\newtheorem*{solution}{Solution}
+\newtheorem*{remark}{Remark}
+
+\title{Random Walks --- Week 5 Piazza Exercises}
+\author{CUNY, Spring 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Week 5: Galton--Watson Branching Processes}
+
+Let $(Z_n)_{n \ge 0}$ be a \emph{Galton--Watson branching process}: $Z_0 = 1$ and
+$Z_{n+1} = \sum_{i=1}^{Z_n} \xi_i^{(n)}$, where $\{\xi_i^{(n)}\}_{i,n}$ are i.i.d.\ with
+offspring distribution $\mu = P(Z_1 = k)_{k \ge 0}$.  The mean offspring is
+$m = \sum_{k=0}^\infty k\,\mu(\{k\})$.  The probability generating function is
+$\varphi(s) = \sum_{k=0}^\infty s^k \mu(\{k\})$, and the extinction probability is
+$q_\infty = P(\exists\, n: Z_n = 0)$.
+
+% ----------------------------------------------------------------
+\begin{exercise}[Subcritical extinction]
+Suppose $m < 1$.  Show that $q_\infty = 1$ (extinction is certain).
+\end{exercise}
+
+\begin{solution}
+Let $\theta_n = P(Z_n = 0)$.  Then $\theta_{n+1} = \varphi(\theta_n)$ and
+$q_\infty = \lim_{n\to\infty} \theta_n$.  This limit is a fixed point of $\varphi$ in
+$[0,1]$, and $1$ is always a fixed point.  We show it is the \emph{only} fixed point
+in $[0,1)$ when $m < 1$.
+
+Define $g(s) = \varphi(s) - s$.  Since $\varphi$ is convex on $[0,1]$, $g$ is convex.
+We have $g(1) = 0$ and $g'(1) = \varphi'(1) - 1 = m - 1 < 0$.  For $s \in [0,1)$,
+convexity gives
+\[
+  g(s) \ge g(1) + g'(1)(s - 1) = (m-1)(s-1) > 0,
+\]
+since $m - 1 < 0$ and $s - 1 < 0$.  Therefore $\varphi(s) > s$ for all $s \in [0,1)$,
+meaning $1$ is the only fixed point of $\varphi$ in $[0,1]$.  Hence $q_\infty = 1$.
+\hfill$\square$
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Critical extinction]
+Suppose $m = 1$.  Show that $q_\infty = 1$, provided $P(Z_1 = 1) < 1$.
+\end{exercise}
+
+\begin{solution}
+The argument is identical to Exercise 1 with $g'(1) = m - 1 = 0$.  Convexity then gives
+$g(s) \ge 0$ for all $s \in [0,1]$, with equality only at $s = 1$ (since if
+$P(Z_1 = 1) < 1$, then $\varphi$ is strictly convex, giving $g(s) > 0$ for $s \in [0,1)$).
+Hence $q_\infty = 1$.
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Geometric offspring distribution]
+Let $\xi \sim \mathrm{Geom}(p)$, i.e., $P(\xi = k) = (1-p)^k p$ for $k = 0, 1, 2, \ldots$
+
+Find the extinction probability $q_\infty$ as a function of $p$.
+\end{exercise}
+
+\begin{solution}
+The mean offspring is $m = (1-p)/p$.  The pgf is
+\[
+  \varphi(s) = \sum_{k=0}^\infty s^k (1-p)^k p
+  = \frac{p}{1 - (1-p)s} = \frac{p}{1 - qs},
+\]
+where $q = 1-p$.  Setting $\varphi(s) = s$:
+\[
+  \frac{p}{1-qs} = s \implies p = s(1-qs) = s - qs^2 \implies qs^2 - s + p = 0.
+\]
+The solutions are $s = \dfrac{1 \pm \sqrt{1 - 4pq}}{2q}$.  Note $1 - 4pq = (p-q)^2$.
+
+\begin{itemize}
+  \item If $p > 1/2$ (subcritical, $m < 1$): $q_\infty = 1$ by Exercise 1.
+  \item If $p = 1/2$ (critical, $m = 1$): $q_\infty = 1$ by Exercise 2.
+  \item If $p < 1/2$ (supercritical, $m > 1$): the two roots are
+        $s = 1$ and $s = p/q$.  Since $p < 1/2$ implies $p < q$, we have $p/q < 1$.
+        The smallest fixed point in $[0,1]$ is
+        \[
+          q_\infty = \frac{p}{q} = \frac{p}{1-p}.
+        \]
+\end{itemize}
+
+\medskip\noindent\textbf{Summary:}
+\[
+  q_\infty = \begin{cases} 1 & \text{if } p \ge 1/2, \\[4pt] p/(1-p) & \text{if } p < 1/2. \end{cases}
+\]
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Total progeny and first return time]
+\label{ex:tree-walk}
+Let $(Z_n)$ be a GW process.  Let $W = \sum_{n=0}^{\tau_e - 1} Z_n$ be the total progeny,
+where $\tau_e = \inf\{n \ge 1: Z_n = 0\}$ is the extinction time.  Let $S_n$ be the
+random walk on $\mathbb{Z}$ obtained by the depth-first (leftmost unexplored branch)
+traversal of the GW tree, augmented with an extra edge from the root to a ``generation
+$-1$'' ancestor.  Show that
+\[
+  T_0 := \inf\{n \ge 1: S_n = 0\} = 2W.
+\]
+\end{exercise}
+
+\begin{solution}[Due to Neil Hwang]
+Consider the GW tree with offspring variables $(\xi_i^{(k)})$ as usual, and augment it
+by adding one extra edge connecting the root (generation $0$) to an ancestor at generation
+$-1$, so that the total number of vertices is $W$ and the total number of edges
+(including the extra one) is also $W$.
+
+Now traverse the tree by always following the leftmost unexplored branch.  At each step,
+we either descend one level (move away from root) or backtrack (move toward root).  Let
+$S_n$ denote the signed distance from the root after $n$ edge steps; the walk takes a
+step $+1$ when descending and $-1$ when backtracking.
+
+Every edge in the augmented tree is traversed exactly twice: once going away from the root
+and once coming back.  (This is the standard fact that a DFS of a finite tree covers each
+edge exactly twice.)  Therefore the total number of steps is $2W$, and at step $2W$ the
+walk has returned to $-1$, i.e., to the ``generation $-1$'' ancestor, which corresponds
+to the root returning to its starting position $S = 0$.  Hence
+\[
+  T_0 = 2W. \qquad\square
+\]
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Distribution of total progeny via the ballot theorem]
+\label{ex:total-progeny}
+Using Exercise~\ref{ex:tree-walk} and the Hitting-Time Theorem, show that for $n \ge 1$,
+\[
+  P(W = n) = \frac{1}{n}\,P(S_n = -1),
+\]
+where $S_n$ is the SRW in Exercise~\ref{ex:tree-walk} (with step distribution
+$P(Y_i = k-1) = \mu(\{k\})$, so $EY_i = m - 1$).
+\end{exercise}
+
+\begin{solution}
+From Exercise~\ref{ex:tree-walk}, $T_0 = 2W$, so $P(W = n) = P(T_0 = 2n)$.
+
+The walk associated to the GW traversal has steps $Y_i = \xi_i - 1 \in \{-1, 0, 1, 2, \ldots\}$,
+satisfying $Y_i \le 1$ (since offspring count $\xi_i \ge 0$ implies $Y_i = \xi_i - 1 \ge -1$).
+
+The Hitting-Time Theorem (Roch, Theorem 6.2.5) states: for a random walk $(R_t)$ with
+i.i.d.\ increments bounded above by $1$ and $R_0 = 0$, the first hitting time
+$\sigma_l = \inf\{t \ge 0: R_t = l\}$ satisfies
+\[
+  P(\sigma_l = t) = \frac{l}{t}\,P(R_t = l).
+\]
+Apply this with $R_t = -S_t$ (so increments $U_i = -Y_i \ge 0$ and bounded above by
+$1$... actually we apply it to $S_t$ hitting $-1$):
+
+Define $R_t = 1 + S_t$ (so $R_0 = 1$).  Then $T_0 = \inf\{t: S_t = -1\} = \inf\{t: R_t = 0\}$.
+Equivalently, start a walk $\tilde{R}_t = -S_t$ at $0$; its increments satisfy
+$\tilde{U}_i = -Y_i \le 1$.  We want $\sigma_1 = \inf\{t: \tilde{R}_t = 1\}$.
+
+By the Hitting-Time Theorem:
+\[
+  P(T_0 = 2n) = P(\sigma_1 = 2n) = \frac{1}{2n}\,P(\tilde{R}_{2n} = 1) = \frac{1}{2n}\,P(-S_{2n} = 1) = \frac{1}{2n}\,P(S_{2n} = -1).
+\]
+
+Reindexing with $n \mapsto 2n$ to match: for the SRW steps with increments $Y_i = \xi_i - 1$,
+\[
+  P(W = n) = P(T_0 = 2n) = \frac{1}{n}\,P(S_n = -1),
+\]
+where $P(S_n = -1) = P(\xi_1 + \cdots + \xi_n = n - 1)$.
+
+\medskip
+This is consistent with Roch's Theorem 6.2.6 (Law of Total Progeny):
+$P(W = n) = \frac{1}{n}P(\xi_1 + \cdots + \xi_n = n-1)$. \hfill$\square$
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[SRW and geometric offspring GW process]
+Show that for the SRW $S_n = X_1 + \cdots + X_n$ with $P(X_i = +1) = p$,
+$P(X_i = -1) = q = 1-p$, the extinction probability of the corresponding GW process
+(with $\mu = \mathrm{Geom}(q)$ offspring) is
+\[
+  q_\infty = \begin{cases} 1 & \text{if } p \le q, \\ p/q & \text{if } p > q. \end{cases}
+\]
+Identify the connection between $P(S_n \to -\infty)$ and the extinction probability.
+\end{exercise}
+
+\begin{solution}
+By Exercise 3 (with $p$ and $q$ swapped to match the Geom$(q)$ notation),
+the mean offspring is $m = (1-q)/q = p/q$.
+
+\begin{itemize}
+  \item If $p \le q$ (i.e., $m \le 1$): the walk has non-positive drift $E[X_i] = p - q \le 0$.
+        By the SLLN, $S_n/n \to p - q \le 0$, so $S_n \to -\infty$ a.s.\ (if $p < q$) or
+        $S_n$ oscillates (if $p = q$, by Exercise 4 of Week 4).  In either case $q_\infty = 1$.
+  \item If $p > q$ (i.e., $m > 1$): the walk has positive drift, $S_n \to +\infty$ a.s.
+        The process is supercritical, and extinction probability is $q_\infty = q/p$.
+\end{itemize}
+
+The connection: the GW tree (with Geom($q$) offspring) is the ``tree above'' a SRW
+excursion.  Extinction of the tree corresponds to the walk returning to $0$.  The
+probability that the walk ever returns to $-1$ starting from $0$ (with drift $p - q$) equals
+$1$ if $p \le q$ and equals $(q/p)^1 = q/p$ if $p > q$, which matches $q_\infty$.
+\hfill$\square$
+\end{solution}
+
+\end{document}

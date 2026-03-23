@@ -1,0 +1,319 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{problem}{Problem}
+\theoremstyle{remark}
+\newtheorem*{solution}{Solution}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\Prob}{\mathbb{P}}
+
+\title{Outstanding Homework Solutions}
+\author{Neil Hwang \\ CUNY Random Walks, Spring 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ================================================================
+\section*{Week 5, Question 1}
+% ================================================================
+
+\begin{problem}[Computing $P(\beta < \infty)$]
+Let $(S_n)_{n \ge 0}$ be an asymmetric random walk starting at $S_0 = 0$, where at
+each step the walk moves right (i.e., $+1$) with probability $p > 1/2$ and left (i.e.,
+$-1$) with probability $q = 1-p < 1/2$.  Let
+\[
+  \beta = \inf\{n \ge 0 : S_n = -1\}
+\]
+be the first time the walk hits $-1$ (with $\beta = \infty$ if the walk never hits $-1$).
+\begin{enumerate}
+  \item[(1)] Compute $P(\beta < \infty)$.  Use \textbf{two} approaches:
+    \begin{enumerate}
+      \item[(A)] Set up and solve a system of equations \`{a} la Gambler's Ruin.
+      \item[(B)] Use the connection with branching processes.
+    \end{enumerate}
+  \item[(2)] Spell out the distribution of $M = \min_{n \ge 0} S_n$.
+\end{enumerate}
+\end{problem}
+
+\begin{solution}
+
+\medskip\noindent\textbf{Part (1), Approach A: Difference equation / Gambler's Ruin.}
+
+For $x \ge 0$, let $h(x) = P_x(\beta < \infty)$, the probability that the walk started
+at $x \ge 0$ ever reaches $-1$.  By the Markov property, $h$ satisfies the
+second-order linear recurrence
+\begin{equation}\label{eq:harm}
+  h(x) = p\,h(x+1) + q\,h(x-1), \qquad x \ge 0,
+\end{equation}
+with boundary condition $h(-1) = 1$.  We also require $0 \le h(x) \le 1$.
+
+The characteristic equation of~\eqref{eq:harm} is obtained by substituting $h(x) = r^x$:
+\[
+  pr^{x+1} - r^x + qr^{x-1} = 0
+  \;\implies\;
+  pr^2 - r + q = 0
+  = (r - 1)(pr - q),
+\]
+giving roots $r_1 = 1$ and $r_2 = q/p$.  Since $p > 1/2$ we have $q/p \in (0,1)$, and
+the general solution is
+\[
+  h(x) = A + B\Bigl(\frac{q}{p}\Bigr)^{\!x}, \qquad x \ge -1.
+\]
+Because the walk drifts to $+\infty$ (by the SLLN, $S_n/n \to p - q > 0$ a.s.),
+the probability of ever reaching $-1$ from level $x$ must satisfy $h(x) \to 0$ as
+$x \to +\infty$.  Since $(q/p)^x \to 0$ but $A$ is a fixed constant, we require $A = 0$.
+Hence $h(x) = B(q/p)^x$.
+
+Applying the boundary condition $h(-1) = 1$:
+$B(p/q) = 1$, so $B = q/p$.  Therefore
+\[
+  h(x) = \Bigl(\frac{q}{p}\Bigr)^{\!x+1}, \qquad x \ge -1.
+\]
+In particular,
+\[
+  \boxed{P(\beta < \infty) = h(0) = \frac{q}{p}.}
+\]
+
+\medskip\noindent\textbf{Part (1), Approach B: Connection with branching processes.}
+
+We connect $P(\beta < \infty)$ to the extinction probability of a
+Galton--Watson (GW) branching process with offspring distribution
+$\xi \sim \mathrm{Geom}(q)$:
+\[
+  P(\xi = j) = p^j q, \qquad j = 0, 1, 2, \ldots
+\]
+This distribution has mean $m = p/q > 1$ (supercritical, since $p > q$).
+
+\textbf{The connection.}
+Define the $k$-th generation size $Z_k$ as the number of visits of the walk to level $k$
+before time $\beta$ (before the walk first hits $-1$).  We have $Z_0 = 1$ (the walk
+starts at level $0$).
+
+From any visit to level $k$, the walk takes a step to $k+1$ (prob $p$) or to $k-1$
+(prob $q$).  The number of steps to $k+1$ from that visit, before the first step
+down to $k-1$, is distributed as $\mathrm{Geom}(q)$ (number of $+1$ steps before the
+first $-1$ step):
+\[
+  P(\text{offspring from one visit} = j) = p^j q, \quad j = 0, 1, 2, \ldots
+\]
+By the Strong Markov Property, the offspring counts from each visit to level $k$
+are i.i.d., and are independent of everything at other levels.  Therefore
+$(Z_k)_{k \ge 0}$ is a GW branching process with offspring distribution $\mathrm{Geom}(q)$.
+
+The walk ever hits $-1$ if and only if the GW tree has finite depth, i.e., the process
+goes extinct ($Z_k = 0$ for some $k$).  If the tree survives ($Z_k \ge 1$ for all $k$),
+the walk visits arbitrarily large levels and never returns to $-1$.
+
+By Piazza Week~5 Exercise~3 (with the roles of $p$ and $q$ matched to $\mathrm{Geom}(q)$
+parameters), the extinction probability of this supercritical GW process is the smallest
+fixed point of $\varphi(s) = q/(1-ps)$ in $[0,1]$, which equals $q/p$.  Therefore
+\[
+  P(\beta < \infty) = q_\infty = \frac{q}{p},
+\]
+consistent with Approach~A.
+
+\medskip\noindent\textbf{Part (2): Distribution of the minimum.}
+
+Let $M = \min_{n \ge 0} S_n$.  For integer $k \ge 0$, $\{M \le -k\}$ is the event
+that the walk ever reaches level $-k$, i.e., $\{\tau_{-k} < \infty\}$ where
+$\tau_{-k} = \inf\{n \ge 0: S_n = -k\}$.
+
+By the Strong Markov Property applied at $\tau_{-1}, \tau_{-2}, \ldots, \tau_{-(k-1)}$
+successively, reaching level $-k$ from $0$ requires hitting $-1$, then $-2$, \ldots,
+then $-k$, with each step being an independent copy of the original problem.  Thus
+\[
+  P(M \le -k) = P(\tau_{-k} < \infty) = \Bigl(P(\beta < \infty)\Bigr)^k = \Bigl(\frac{q}{p}\Bigr)^{\!k},
+  \qquad k \ge 0.
+\]
+(For $k = 0$ this gives $P(M \le 0) = 1$, trivially true since $S_0 = 0$.)
+
+The probability mass function of $M$ on $\{0, -1, -2, \ldots\}$ is, for $k \ge 0$:
+\begin{align*}
+  P(M = -k)
+  &= P(M \le -k) - P(M \le -(k+1)) \\
+  &= \Bigl(\frac{q}{p}\Bigr)^{\!k} - \Bigl(\frac{q}{p}\Bigr)^{\!k+1}
+  = \Bigl(\frac{q}{p}\Bigr)^{\!k}\!\Bigl(1 - \frac{q}{p}\Bigr)
+  = \frac{p-q}{p}\Bigl(\frac{q}{p}\Bigr)^{\!k}.
+\end{align*}
+Setting $r = q/p \in (0,1)$:
+\[
+  \boxed{P(M = -k) = (1-r)\,r^k, \quad k = 0, 1, 2, \ldots, \quad r = \frac{q}{p}.}
+\]
+This is the \textbf{geometric distribution} on $\{0, -1, -2, \ldots\}$ with parameter
+$r = q/p$.  Equivalently, $-M \sim \mathrm{Geom}\!\bigl(\tfrac{p-q}{p}\bigr)$
+(supported on $\{0, 1, 2, \ldots\}$, counting trials before the first success with
+success probability $(p-q)/p$).
+
+\begin{remark}
+Sanity checks: if $p \to 1/2^+$ then $r \to 1$ and the distribution spreads to
+$-\infty$, consistent with recurrence of the symmetric walk (which reaches every level
+a.s.).  If $p \to 1$ then $r \to 0$ and $P(M = 0) \to 1$, consistent with the walk
+almost surely never going negative when steps are always $+1$.
+\end{remark}
+
+\end{solution}
+
+% ================================================================
+\section*{Week 8, Exercise 3}
+% ================================================================
+
+\begin{problem}[Taking out what is known]
+\label{prob:ex3}
+Let $(\Omega, \F_0, P)$ be a probability space, $\F \subseteq \F_0$ a sub-$\sigma$-algebra,
+$g \in L^1(\Omega, \F_0, P)$, and $f$ an $\F$-measurable function with $fg \in L^1$.
+Show that
+\[
+  \E[f \cdot g \mid \F] = f \cdot \E[g \mid \F] \quad \text{a.s.}
+\]
+\end{problem}
+
+\begin{solution}
+
+We verify that $Z \coloneqq f \cdot \E[g \mid \F]$ satisfies the two conditions that
+characterize the conditional expectation $\E[fg \mid \F]$:
+\begin{enumerate}
+  \item[(i)] $Z$ is $\F$-measurable.
+  \item[(ii)] $\int_A Z\,dP = \int_A fg\,dP$ for every $A \in \F$.
+\end{enumerate}
+
+\textbf{Condition (i).}
+$\E[g \mid \F]$ is $\F$-measurable by definition, and $f$ is $\F$-measurable by
+assumption, so their product $Z = f \cdot \E[g|\F]$ is $\F$-measurable.
+
+\textbf{Condition (ii).}
+We must show $\int_A f \cdot \E[g \mid \F]\,dP = \int_A fg\,dP$ for all $A \in \F$.
+We build up to the general case in steps.
+
+\medskip
+\noindent\textit{Step 1: $f = \1_B$ for $B \in \F$.}
+
+\[
+  \int_A \1_B \cdot \E[g \mid \F]\,dP
+  = \int_{A \cap B} \E[g \mid \F]\,dP
+  \overset{(*)}{=} \int_{A \cap B} g\,dP
+  = \int_A \1_B \cdot g\,dP,
+\]
+where $(*)$ uses the defining property of $\E[g|\F]$ with the set $A \cap B \in \F$.
+
+\medskip
+\noindent\textit{Step 2: $f = \sum_{i=1}^n c_i \1_{B_i}$ a non-negative simple
+$\F$-measurable function ($c_i \ge 0$, $B_i \in \F$).}
+
+By linearity and Step~1:
+\[
+  \int_A f \cdot \E[g|\F]\,dP = \sum_i c_i \int_A \1_{B_i}\E[g|\F]\,dP
+  = \sum_i c_i \int_A \1_{B_i} g\,dP = \int_A fg\,dP.
+\]
+
+\medskip
+\noindent\textit{Step 3: $f \ge 0$ $\F$-measurable, $g \ge 0$.}
+
+Choose simple $\F$-measurable $f_n \uparrow f$ pointwise.  Since $g \ge 0$ and
+$\E[g|\F] \ge 0$, both sequences $f_n g \uparrow fg$ and $f_n \E[g|\F] \uparrow f\E[g|\F]$
+are non-decreasing and non-negative.  By the Monotone Convergence Theorem and Step~2:
+\[
+  \int_A f \cdot \E[g|\F]\,dP
+  = \lim_{n\to\infty} \int_A f_n \E[g|\F]\,dP
+  \overset{\text{Step }2}{=} \lim_{n\to\infty} \int_A f_n g\,dP
+  = \int_A fg\,dP.
+\]
+
+\medskip
+\noindent\textit{Step 4: $f \ge 0$ $\F$-measurable, $g \in L^1$ general.}
+
+Decompose $g = g^+ - g^-$ where $g^+, g^- \ge 0$.  By Step~3 applied to $(f, g^+)$
+and $(f, g^-)$ separately, and using linearity:
+\[
+  \int_A f \E[g|\F]\,dP
+  = \int_A f \E[g^+|\F]\,dP - \int_A f \E[g^-|\F]\,dP
+  = \int_A fg^+\,dP - \int_A fg^-\,dP
+  = \int_A fg\,dP.
+\]
+(Both integrals are finite since $fg \in L^1$.)
+
+\medskip
+\noindent\textit{Step 5: General $f$ $\F$-measurable, $fg \in L^1$.}
+
+Decompose $f = f^+ - f^-$.  Apply Step~4 to $(f^+, g)$ and $(f^-, g)$:
+\[
+  \int_A fg\,dP
+  = \int_A f^+g\,dP - \int_A f^-g\,dP
+  = \int_A f^+\E[g|\F]\,dP - \int_A f^-\E[g|\F]\,dP
+  = \int_A f\E[g|\F]\,dP.
+\]
+
+By the uniqueness of conditional expectation, conditions (i) and (ii) identify
+$Z = f \cdot \E[g|\F]$ as $\E[fg|\F]$ almost surely. \hfill$\square$
+\end{solution}
+
+% ================================================================
+\section*{Week 8, Exercise 4}
+% ================================================================
+
+\begin{problem}[Random walk with i.i.d.\ mean-zero increments is a martingale]
+\label{prob:ex4}
+Let $X_1, X_2, \ldots$ be i.i.d.\ with $\E[X_1] = 0$ and $\E|X_1| < \infty$.
+Let $S_n = X_1 + \cdots + X_n$ (with $S_0 = 0$) and $\F_n = \sigma(X_1, \ldots, X_n)$.
+Using the result of Exercise~3, show that
+\[
+  \E[S_n \mid \F_{n-1}] = S_{n-1} \quad \text{a.s.\ for all } n \ge 1,
+\]
+and conclude that $(S_n, \F_n)_{n \ge 0}$ is a martingale.
+\end{problem}
+
+\begin{solution}
+
+Write $S_n = S_{n-1} + X_n$.  By linearity of conditional expectation:
+\begin{equation}\label{eq:split}
+  \E[S_n \mid \F_{n-1}]
+  = \E[S_{n-1} \mid \F_{n-1}] + \E[X_n \mid \F_{n-1}].
+\end{equation}
+
+\textbf{First term.}  $S_{n-1}$ is $\F_{n-1}$-measurable (it is a function of
+$X_1, \ldots, X_{n-1}$).  Applying Exercise~3 with $f = S_{n-1}$ and $g = 1$:
+\[
+  \E[S_{n-1} \mid \F_{n-1}]
+  = S_{n-1} \cdot \E[1 \mid \F_{n-1}]
+  = S_{n-1} \cdot 1
+  = S_{n-1}.
+\]
+
+\textbf{Second term.}  Since $X_1, X_2, \ldots$ are i.i.d., $X_n$ is independent of
+$\F_{n-1} = \sigma(X_1, \ldots, X_{n-1})$.  By the independence property of conditional
+expectation ($\E[W|\F] = \E[W]$ whenever $W \perp \F$):
+\[
+  \E[X_n \mid \F_{n-1}] = \E[X_n] = \E[X_1] = 0.
+\]
+
+\textbf{Combining.}  Substituting back into~\eqref{eq:split}:
+\[
+  \E[S_n \mid \F_{n-1}] = S_{n-1} + 0 = S_{n-1} \quad \text{a.s.}
+\]
+
+\textbf{Martingale verification.}  The three defining conditions of a martingale hold:
+\begin{enumerate}
+  \item \textit{Adapted}: $S_n = X_1 + \cdots + X_n$ is $\F_n$-measurable for each $n$.
+  \item \textit{Integrable}: $\E|S_n| \le \sum_{k=1}^n \E|X_k| = n\,\E|X_1| < \infty$.
+  \item \textit{Martingale property}: $\E[S_n \mid \F_{n-1}] = S_{n-1}$ a.s., shown above.
+\end{enumerate}
+Hence $(S_n, \F_n)_{n \ge 0}$ is a martingale. \hfill$\square$
+
+\begin{remark}
+The proof illustrates the two key ingredients behind every random walk martingale
+verification: (1) the current value $S_{n-1}$ can be ``taken out'' of the expectation
+because it is measurable with respect to the past (Exercise~3), and (2) the new
+increment $X_n$ has mean zero and is independent of the past, so conditioning on the
+past does not change its expectation.
+\end{remark}
+
+\end{solution}
+
+\end{document}

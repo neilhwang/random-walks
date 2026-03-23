@@ -1,0 +1,151 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{exercise}{Exercise}
+\theoremstyle{remark}
+\newtheorem*{solution}{Solution}
+\newtheorem*{remark}{Remark}
+
+\title{Random Walks --- Week 4 Piazza Exercises}
+\author{CUNY, Spring 2026}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{Week 4: Zero-One Laws and Limit Behavior}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Limsup and liminf of events]
+Let $(A_n)_{n \ge 1}$ be a sequence of events on a probability space $(\Omega, \mathcal{F}, P)$.
+\begin{enumerate}
+  \item[(a)] Show that $\liminf_{n\to\infty} A_n = \bigcup_{k=1}^\infty \bigcap_{n \ge k} A_n$
+             and $\limsup_{n\to\infty} A_n = \bigcap_{k=1}^\infty \bigcup_{n \ge k} A_n$.
+  \item[(b)] Show that $\liminf A_n \subseteq \limsup A_n$.
+  \item[(c)] If $P(A_n \triangle A) \to 0$ as $n \to \infty$ for some event $A$,
+             show that $P(A) = \lim_{n\to\infty} P(A_n)$ and
+             $P(\liminf A_n) = P(\limsup A_n) = P(A)$.
+\end{enumerate}
+\end{exercise}
+
+\begin{solution}
+\textbf{(a)} By definition, $\omega \in \liminf A_n$ iff $\omega \in A_n$ for all but
+finitely many $n$, i.e., there exists $k$ such that $\omega \in A_n$ for all $n \ge k$.
+This is exactly $\omega \in \bigcup_k \bigcap_{n \ge k} A_n$.  Similarly,
+$\omega \in \limsup A_n$ iff $\omega \in A_n$ for infinitely many $n$, which is
+$\omega \in \bigcap_k \bigcup_{n \ge k} A_n$.
+
+\textbf{(b)} If $\omega$ is in all $A_n$ eventually, it is in $A_n$ infinitely often.
+
+\textbf{(c)} $|P(A_n) - P(A)| \le P(A_n \triangle A) \to 0$, so $P(A_n) \to P(A)$.
+For the liminf: $\liminf A_n = \bigcup_k \bigcap_{n \ge k} A_n \uparrow$, and
+$P(\bigcap_{n \ge k} A_n) \ge P(A) - P(A \triangle A_n) \to P(A)$, so
+$P(\liminf A_n) = P(A)$. Then $P(\limsup A_n) \ge P(\liminf A_n) = P(A)$ and
+$P(\limsup A_n) \le P(A) + P(A_n \triangle A) \to P(A)$, giving equality.
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Tail $\sigma$-algebra and constants]
+Let $X_1, X_2, \ldots$ be independent real-valued random variables.  Define the
+\emph{tail $\sigma$-algebra}
+\[
+  \mathcal{T} = \bigcap_{n=1}^\infty \sigma(X_{n+1}, X_{n+2}, \ldots).
+\]
+Show that any $\mathcal{T}$-measurable random variable $Z$ must be $P$-a.s.\ equal to
+a constant (i.e., there exists $c \in \mathbb{R}$ with $P(Z = c) = 1$).
+\end{exercise}
+
+\begin{solution}
+By Kolmogorov's 0-1 Law, $\mathcal{T}$ is $P$-trivial: every $A \in \mathcal{T}$
+satisfies $P(A) \in \{0,1\}$.  If $Z$ is $\mathcal{T}$-measurable, then for every
+Borel set $B \subseteq \mathbb{R}$, the event $\{Z \in B\} \in \mathcal{T}$ has
+probability $0$ or $1$.
+
+Let $F(x) = P(Z \le x)$ be the distribution function of $Z$.  Since $F$ is
+right-continuous, non-decreasing, with $F(-\infty)=0$ and $F(+\infty)=1$, and since
+$\{Z \le x\} \in \mathcal{T}$ forces $F(x) \in \{0,1\}$ for every $x$, the function
+$F$ must be the Heaviside step function at some point $c$:
+\[
+  c = \sup\{x : F(x) = 0\} = \inf\{x : F(x) = 1\}.
+\]
+Therefore $P(Z = c) = 1$. \hfill$\square$
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Percolation and the infinite cluster]
+Consider Bernoulli bond percolation on $\mathbb{Z}^d$: to each edge $e$ of the lattice,
+independently assign $X_e \sim \mathrm{Bernoulli}(p)$ (edge \emph{open} if $X_e = 1$).
+Let $C_\infty$ be the event that the origin belongs to an infinite open cluster.
+\begin{enumerate}
+  \item[(a)] Show that $C_\infty$ is a tail event with respect to the family $(X_e)_{e}$
+             for any enumeration of the edges.
+  \item[(b)] Conclude that $P_p(C_\infty) \in \{0, 1\}$.
+  \item[(c)] For $d \ge 2$, there exists a critical probability $p_c \in (0,1)$ such that
+             $P_p(C_\infty) = 0$ for $p < p_c$ and $P_p(C_\infty) = 1$ for $p > p_c$.
+             Briefly explain why this dichotomy is consistent with (b).
+\end{enumerate}
+\end{exercise}
+
+\begin{solution}
+\textbf{(a)} The event $C_\infty$ is determined by the existence of an infinite self-avoiding
+path starting from the origin.  Whether such a path exists is not changed by modifying
+any finite collection of edges, because we can always reroute finitely many steps.
+Formally, for any finite set of edges $F$, the occurrence of $C_\infty$ coincides (a.s.)
+with the occurrence of the same event after removing $F$ from consideration.
+Hence $C_\infty \in \sigma(X_e : e \notin F)$ for every finite $F$, which means
+$C_\infty \in \mathcal{T} = \bigcap_F \sigma(X_e : e \notin F)$.
+
+\textbf{(b)} Since $(X_e)$ are i.i.d., Kolmogorov's 0-1 Law applies and
+$P_p(C_\infty) \in \{0,1\}$.
+
+\textbf{(c)} The function $p \mapsto P_p(C_\infty)$ is non-decreasing (more open edges
+can only help connectivity).  By (b) it can only take values in $\{0,1\}$, so it
+must jump at some threshold $p_c$: below $p_c$ the probability is $0$, above it is $1$.
+\end{solution}
+
+% ----------------------------------------------------------------
+\begin{exercise}[Symmetric nondegenerate random walk oscillates]
+\label{ex:oscillate}
+Let $X_1, X_2, \ldots$ be i.i.d.\ with distribution $\mu$ that is symmetric about $0$
+(i.e., $\mu = \mu \circ (-\mathrm{id})^{-1}$) and nondegenerate (i.e., $P(X_1 = 0) < 1$).
+Let $S_n = X_1 + \cdots + X_n$.  Show that
+\[
+  P\!\Bigl(\limsup_{n\to\infty} S_n = +\infty\Bigr) = 1
+  \quad\text{and}\quad
+  P\!\Bigl(\liminf_{n\to\infty} S_n = -\infty\Bigr) = 1.
+\]
+In particular, we are in case~(4) of the Four Possibilities Theorem for random walks on
+$\mathbb{R}$ (i.e., $\limsup S_n = +\infty$ and $\liminf S_n = -\infty$ almost surely).
+\end{exercise}
+
+\begin{solution}
+By the Hewitt--Savage 0-1 Law, $\limsup_n S_n$ is a.s.\ equal to a constant
+$c \in [-\infty, +\infty]$ (it is a permutation-invariant measurable function of
+$(X_1, X_2, \ldots)$, hence $0$ or $\pm\infty$).
+
+Suppose for contradiction that $\limsup_n S_n = c < +\infty$ a.s. Since $\mu$ is
+nondegenerate and symmetric, there exists $\epsilon > 0$ with $P(X_1 > \epsilon) = P(X_1 < -\epsilon) > 0$.
+Then $P(X_1 > \epsilon) > 0$ implies $S_n \to +\infty$ with positive probability on certain
+realizations (by the law of large numbers applied after conditioning), contradicting
+finiteness of $c$.
+
+More precisely: by symmetry, $(-S_n)$ has the same distribution as $(S_n)$, so
+$\limsup(-S_n) = -\liminf S_n$ must equal the same constant $c$.
+If $\limsup S_n = c$ a.s., then $\liminf S_n = -c$ a.s. For $c$ to be finite and
+$-c$ to also be finite, we would need $S_n$ to stay in $[-c, c]$ forever, which is
+impossible when $P(X_1 \ne 0) > 0$ (the walk escapes any bounded interval a.s.\ by
+recurrence of returns to $0$ and the strong Markov property).  Hence $c = +\infty$.
+
+By the symmetry argument applied to $-S_n$, we also have $\liminf S_n = -\infty$
+a.s., placing us in case (4). \hfill$\square$
+\end{solution}
+
+\begin{remark}
+This exercise provides an alternative proof that the simple symmetric random walk on
+$\mathbb{Z}$ is recurrent: the walk oscillates between $+\infty$ and $-\infty$, so it
+must return to $0$ infinitely often.
+\end{remark}
+
+\end{document}
