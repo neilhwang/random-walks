@@ -1,0 +1,11 @@
+# Binary files — managed by Dropbox, not git
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# macOS
+.DS_Store
+
+# Claude session data
+.claude/
