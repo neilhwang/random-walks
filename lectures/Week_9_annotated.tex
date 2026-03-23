@@ -74,7 +74,7 @@ Think of $(H_n)$ as a \emph{gambling strategy}: $H_n$ is the amount bet in round
 Let $(X_n)_{n \ge 0}$ be adapted to $(\F_n)$ and $(H_n)_{n \ge 1}$ predictable.
 The \textbf{martingale transform} (or \emph{discrete stochastic integral}) of $X$ by $H$ is
 \[
-  (H \cdot X)_n \coloneqq \sum_{m=1}^n H_m (X_m - X_{m-1}), \quad n \ge 0.
+  (H \cdot X)_n := \sum_{m=1}^n H_m (X_m - X_{m-1}), \quad n \ge 0.
 \]
 Here $H_m(X_m - X_{m-1})$ is the gain from betting $H_m$ in round $m$.
 \end{tcolorbox}
@@ -544,7 +544,7 @@ $\E[X_n - X_{n-1} \mid \F_{n-1}] \ge 0$, so $A_n - A_{n-1} \ge 0$.
 
 \medskip\noindent
 \textbf{Uniqueness.}  Suppose $X_n = M_n + A_n = \widetilde{M}_n + \widetilde{A}_n$.
-Then $D_n \coloneqq A_n - \widetilde{A}_n = \widetilde{M}_n - M_n$ is both predictable
+Then $D_n := A_n - \widetilde{A}_n = \widetilde{M}_n - M_n$ is both predictable
 and a martingale difference.  Since $D_n \in \F_{n-1}$ (predictable):
 \[
   D_n = \E[D_n \mid \F_{n-1}] = D_{n-1}
