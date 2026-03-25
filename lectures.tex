@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+
+\title{Random Walks -- Lecture Notes}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+%% -------------------------------------------------------
+%% Image 1: Pólya's Urn Scheme
+%% -------------------------------------------------------
+\section{P\'olya's Urn Scheme}
+
+\textbf{Setup.} Initially the urn contains $r$ red balls and $g$ green balls.
+At each step, draw one ball uniformly at random, observe its color, then
+return it together with $c$ additional balls of the same color.
+
+\textbf{Notation.}
+\begin{align*}
+  G_n &= \text{number of green balls after the }n\text{-th draw (and add)},\\
+  R_n &= \text{number of red balls after the }n\text{-th draw (and add)}.
+\end{align*}
+
+\textbf{Proportion process.} Define
+\[
+  X_n = \frac{G_n}{G_n + R_n},
+\]
+the proportion of green balls after $n$ draws.
+
+%% -------------------------------------------------------
+%% Image 2: X_n is a martingale + Convergence theorem
+%% -------------------------------------------------------
+\section{$X_n$ is a Martingale}
+
+\textbf{Claim.} $(X_n)_{n \ge 0}$ is a martingale with respect to the natural
+filtration $(\mathcal{F}_n)$.
+
+\begin{proof}
+Conditioning on $\mathcal{F}_n$, the $(n+1)$-st draw is green with probability
+$G_n/(G_n+R_n)$ and red with probability $R_n/(G_n+R_n)$. Therefore
+\begin{align*}
+  E[X_{n+1} \mid \mathcal{F}_n]
+  &= \frac{G_n}{G_n+R_n} \cdot \frac{G_n+c}{G_n+R_n+c}
+   + \frac{R_n}{G_n+R_n} \cdot \frac{G_n}{G_n+R_n+c} \\[4pt]
+  &= \frac{G_n(G_n+c) + G_n R_n}{(G_n+R_n)(G_n+R_n+c)} \\[4pt]
+  &= \frac{G_n(G_n + c + R_n)}{(G_n+R_n+c)(G_n+R_n)} \\[4pt]
+  &= \frac{G_n}{G_n+R_n} = X_n. \qedhere
+\end{align*}
+\end{proof}
+
+\section{Martingale Convergence}
+
+\begin{theorem}[$L^2$ Martingale Convergence Theorem]
+If $(X_n)_{n \ge 0}$ is an $L^2$-submartingale satisfying
+\[
+  \sup_{n} E[X_n^2] < \infty,
+\]
+then there exists $X_\infty \in L^2$ such that $X_n \to X_\infty$ almost surely.
+\end{theorem}
+
+\begin{corollary}[4.7.12]
+If $(X_n)_{n \ge 0}$ is a supermartingale with $X_n \ge 0$ for all $n$, then
+\[
+  X_n \xrightarrow{a.s.} X_\infty \quad \text{and} \quad E[X_\infty] \le E[X_n] \quad \forall\, n.
+\]
+\end{corollary}
+
+\begin{proof}
+Set $Y_n = -X_n$. Then $(Y_n)$ is a submartingale satisfying $Y_n \le 0$, so
+$\sup_n E[Y_n^2] = \sup_n E[X_n^2] < \infty$ (since the $X_n$ are bounded below
+by $0$ and $E[X_n]$ is decreasing). By the $L^2$ convergence theorem,
+$Y_n \to Y_\infty$ a.s., hence $X_n \to X_\infty \ge 0$ a.s.
+
+For the bound on expectations, apply Fatou's lemma:
+\[
+  E[X_\infty]
+  = E\!\left[\liminf_{n} X_n\right]
+  \le \liminf_{n}\, E[X_n]
+  \le E[X_m] \quad \forall\, m.
+\]
+Hence $E[X_\infty] \le E[X_n]$ for all $n$.
+\end{proof}
+
+\end{document}
